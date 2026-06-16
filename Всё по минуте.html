@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Всё по минуте</title>
+    <style>
+        /* --- СТИЛИ (оставил только самое нужное, чтобы не грузить) --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #eef2f0;
+            font-family: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 16px;
+        }
+        .presentation {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .slide {
+            padding: 32px 24px;
+            border-bottom: 1px solid #e2e8e5;
+        }
+        .slide:last-child {
+            border-bottom: none;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a5c46;
+            margin-bottom: 16px;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a5c46;
+            margin: 20px 0 12px 0;
+            padding-left: 12px;
+            border-left: 5px solid #f4b942;
+        }
+        .intro-text {
+            background: #fefce8;
+            padding: 20px;
+            border-radius: 28px;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 16px 0;
+        }
+        .highlight {
+            background: #fbe9c3;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .badge {
+            background: #f4b942;
+            color: #1e3a2f;
+            border-radius: 30px;
+            padding: 5px 15px;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 13px;
+            margin: 4px;
+        }
+        /* КАЛЬКУЛЯТОР — МАКСИМАЛЬНО ПРОСТОЙ И НАДЁЖНЫЙ */
+        .calc-box {
+            background: #f0f5f3;
+            border-radius: 32px;
+            padding: 24px 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .weight-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .weight-row label {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a5c46;
+        }
+        .weight-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .weight-control button {
+            background: #367a60;
+            border: none;
+            width: 50px;
+            height: 50px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .weight-control button:active {
+            background: #1e5a44;
+        }
+        .weight-control input {
+            width: 120px;
+            background: white;
+            border: 2px solid #cbdcd4;
+            border-radius: 40px;
+            padding: 12px;
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            font-family: monospace;
+        }
+        .calc-btn {
+            background: #f4b942;
+            border: none;
+            padding: 16px 50px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a3a2e;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 12px 0;
+            touch-action: manipulation;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .calc-btn:active {
+            background: #dba12e;
+            transform: scale(0.97);
+        }
+        /* Блоки результатов — теперь у каждого свой ID */
+        .result-calories {
+            background: #ffe8d4;
+            border-radius: 24px;
+            padding: 16px;
+            margin: 20px 0 15px;
+        }
+        .calories-number {
+            font-size: 46px;
+            font-weight: 800;
+            color: #e67e22;
+        }
+        .macros {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .macro-item {
+            background: white;
+            border-radius: 20px;
+            padding: 12px;
+            min-width: 90px;
+            text-align: center;
+            flex: 1;
+        }
+        .macro-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a5c46;
+        }
+        .formula-note {
+            font-size: 11px;
+            background: #e0ece8;
+            padding: 10px;
+            border-radius: 20px;
+            margin-top: 15px;
+        }
+
+        /* Активность и упражнения (без изменений) */
+        .activity-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .activity-card {
+            background: #fcf8ef;
+            border-radius: 24px;
+            padding: 15px;
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+        }
+        .activity-emoji {
+            font-size: 32px;
+        }
+        .exercises-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .exercise-card {
+            background: #1f2e2a;
+            border-radius: 28px;
+            padding: 18px 8px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            width: calc(50% - 6px);
+        }
+        .exercise-card:active {
+            background: #2a4a3e;
+        }
+        .exercise-emoji {
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+        .exercise-card h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .video-hint {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        .info-block {
+            background: #feeed9;
+            border-radius: 24px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        footer {
+            background: #dcebe5;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #2b5a48;
+        }
+        @media (max-width: 550px) {
+            .slide { padding: 20px 16px; }
+            h1 { font-size: 28px; }
+            h2 { font-size: 20px; }
+            .calories-number { font-size: 38px; }
+        }
+    </style>
+</head>
+<body>
+<div class="presentation">
+
+    <!-- СЛАЙД 1 -->
+    <div class="slide">
+        <h1>⚡ Всё по минуте</h1>
+        <div class="intro-text">
+            <p style="font-size: 18px; font-weight: 500;">✨ Дорогой зритель, я приветствую тебя на моей онлайн-программе для похудения: <strong>«Всё по минуте»</strong> ✨</p>
+            <p style="margin-top: 15px;">Здесь тебе не понадобятся изнурительные тренировки и абонемент в зал. Мы затронем каждый аспект жиросжигания в организме, и я помогу тебе <strong class="highlight">уменьшить цифру на весах</strong>.</p>
+            <p style="margin-top: 15px;">Если ты готов — скорее погнали! 🚀</p>
+        </div>
+        <div style="text-align: center; margin-top: 16px;">
+            <span class="badge">🧠 Минутная стратегия</span>
+            <span class="badge" style="background:#c7e6da; color:#1a4d3a;">🔥 Без изнурений</span>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 2: КАЛЬКУЛЯТОР (ПОЛНОСТЬЮ ПЕРЕРАБОТАН) -->
+    <div class="slide">
+        <h2>📊 Шаг 1. Твоя норма</h2>
+        <p>Введи вес и нажми <strong>«Рассчитать»</strong></p>
+        
+        <div class="calc-box">
+            <div class="weight-row">
+                <label>⚖️ Мой вес:</label>
+                <div class="weight-control">
+                    <!-- КНОПКА МИНУС -->
+                    <button type="button" id="minusBtn">–</button>
+                    <!-- ПОЛЕ ВВОДА -->
+                    <input type="number" id="weightInput" value="72" min="40" max="200">
+                    <!-- КНОПКА ПЛЮС -->
+                    <button type="button" id="plusBtn">+</button>
+                </div>
+                <span style="font-weight:600;">кг</span>
+            </div>
+            
+            <!-- КНОПКА РАССЧИТАТЬ -->
+            <button type="button" class="calc-btn" id="calcBtn">🧮 Рассчитать</button>
+            
+            <!-- РЕЗУЛЬТАТЫ (каждый элемент имеет уникальный ID для обновления) -->
+            <div id="resultBlock">
+                <div class="result-calories">
+                    <div style="font-size: 13px; letter-spacing: 1px;">ОБЩАЯ КАЛОРИЙНОСТЬ</div>
+                    <div class="calories-number" id="calDisplay">1800 <span style="font-size: 20px;">ккал</span></div>
+                    <div style="font-size: 12px;" id="formulaDisplay">25 × 72 кг</div>
+                </div>
+                <div style="font-weight: 600; margin: 12px 0 8px;">🍽️ БЖУ на день</div>
+                <div class="macros">
+                    <div class="macro-item">
+                        <div style="font-size: 26px;">🍗</div>
+                        <div class="macro-number" id="proteinDisplay">68 г</div>
+                        <div>Белки</div>
+                        <small id="proteinKcalDisplay">270 ккал</small>
+                    </div>
+                    <div class="macro-item">
+                        <div style="font-size: 26px;">🥑</div>
+                        <div class="macro-number" id="fatDisplay">60 г</div>
+                        <div>Жиры</div>
+                        <small id="fatKcalDisplay">540 ккал</small>
+                    </div>
+                    <div class="macro-item">
+                        <div style="font-size: 26px;">🍚</div>
+                        <div class="macro-number" id="carbsDisplay">248 г</div>
+                        <div>Углеводы</div>
+                        <small id="carbsKcalDisplay">990 ккал</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="formula-note">
+                📐 Формула: 25 × вес = калории
+            </div>
+        </div>
+    </div>
+
+    <!-- СЛАЙД 3: АКТИВНОСТЬ -->
+    <div class="slide">
+        <h2>🏃‍♂️ Движение вне зала</h2>
+        <p>Каждая лишняя минута активности разгоняет метаболизм.</p>
+        <div class="activity-cards">
+            <div class="activity-card">
+                <div class="activity-emoji">🚶‍♂️</div>
+                <h3>Лестница вместо лифта</h3>
+                <p>5 минут = +40 ккал</p>
+            </div>
+            <div class="activity-card">
+                <div class="activity-emoji">🐕</div>
+                <h3>Гуляй с собакой дольше</h3>
+                <p>+15 минут = +80 ккал</p>
+            </div>
+            <div class="activity-card">
+                <div class="activity-emoji">🚶‍♀️</div>
+                <h3>Ходи пешком до работы</h3>
+                <p>Сжигает жир 24/7</p>
+            </div>
+        </div>
+        <div style="background: #e6f2ee; border-radius: 24px; padding: 15px; margin-top: 15px;">
+            🔥 <strong>Факт:</strong> 10 000 шагов в день сжигают до 400 калорий
+        </div>
+    </div>
+
+    <!-- СЛАЙД 4: УПРАЖНЕНИЯ -->
+    <div class="slide">
+        <h2>🏠 5 домашних упражнений</h2>
+        <p>Нажми на карточку — откроется видео с техникой.</p>
+        <div class="exercises-grid">
+            <a href="https://vk.com/video214601675_456239502?list=ln-iVZ5t46JUDdkzyzIeT" class="exercise-card" target="_blank">
+                <div class="exercise-emoji">💪</div>
+                <h4>Отжимания от колен</h4>
+                <div class="video-hint">▶️ Смотреть видео</div>
+            </a>
+            <a href="https://vk.com/clip214601675_456239504" class="exercise-card" target="_blank">
+                <div class="exercise-emoji">🏋️</div>
+                <h4>Приседания</h4>
+                <div class="video-hint">▶️ Смотреть видео</div>
+            </a>
+            <a href="https://vk.com/clip214601675_456239505" class="exercise-card" target="_blank">
+                <div class="exercise-emoji">🚶‍♀️</div>
+                <h4>Выпады</h4>
+                <div class="video-hint">▶️ Смотреть видео</div>
+            </a>
+            <a href="https://vk.com/clip214601675_456239506" class="exercise-card" target="_blank">
+                <div class="exercise-emoji">🧘</div>
+                <h4>Подъём туловища с прямыми ногами</h4>
+                <div class="video-hint">▶️ Смотреть видео</div>
+            </a>
+            <a href="https://vk.com/video214601675_456239507?list=ln-tRQ4l4W4RqVKJK35Ke" class="exercise-card" target="_blank">
+                <div class="exercise-emoji">🌀</div>
+                <h4>Скручивания</h4>
+                <div class="video-hint">▶️ Смотреть видео</div>
+            </a>
+        </div>
+        <div class="info-block">
+            🎥 Нажми на карточку — откроется видео. Делай по 1 минуте, отдых 20 секунд. Круг повтори 2-3 раза! 🔥
+        </div>
+        <p style="text-align: center; margin-top: 24px;">✨ <em>«Всё по минуте» — стройность без зала ✨</em></p>
+    </div>
+
+    <footer>
+        © Всё по минуте | Интерактивная программа похудения
+    </footer>
+</div>
+
+<script>
+    // --- НОВЫЙ, ПРОСТЕЙШИЙ СКРИПТ ---
+    // 1. Получаем все элементы по ID
+    var weightInput = document.getElementById('weightInput');
+    var minusBtn = document.getElementById('minusBtn');
+    var plusBtn = document.getElementById('plusBtn');
+    var calcBtn = document.getElementById('calcBtn');
+
+    // Элементы для вывода результатов
+    var calDisplay = document.getElementById('calDisplay');
+    var formulaDisplay = document.getElementById('formulaDisplay');
+    var proteinDisplay = document.getElementById('proteinDisplay');
+    var fatDisplay = document.getElementById('fatDisplay');
+    var carbsDisplay = document.getElementById('carbsDisplay');
+    var proteinKcalDisplay = document.getElementById('proteinKcalDisplay');
+    var fatKcalDisplay = document.getElementById('fatKcalDisplay');
+    var carbsKcalDisplay = document.getElementById('carbsKcalDisplay');
+
+    // 2. Функция расчёта (самая простая)
+    function calculate() {
+        // Берем значение из поля
+        var weight = parseFloat(weightInput.value);
+
+        // Проверяем, что число корректное
+        if (isNaN(weight) || weight < 30) {
+            weight = 72;
+            weightInput.value = 72;
+        }
+        if (weight > 200) {
+            weight = 200;
+            weightInput.value = 200;
+        }
+
+        // Округляем
+        weight = Math.round(weight);
+        weightInput.value = weight;
+
+        // Считаем
+        var calories = 25 * weight;
+        var protein = Math.round((calories * 0.15) / 4);
+        var fat = Math.round((calories * 0.30) / 9);
+        var carbs = Math.round((calories * 0.55) / 4);
+        var proteinKcal = Math.round(calories * 0.15);
+        var fatKcal = Math.round(calories * 0.30);
+        var carbsKcal = Math.round(calories * 0.55);
+
+        // 3. Вставляем результаты (без innerHTML для всего блока)
+        calDisplay.innerHTML = calories + ' <span style="font-size: 20px;">ккал</span>';
+        formulaDisplay.textContent = '25 × ' + weight + ' кг';
+
+        proteinDisplay.textContent = protein + ' г';
+        fatDisplay.textContent = fat + ' г';
+        carbsDisplay.textContent = carbs + ' г';
+
+        proteinKcalDisplay.textContent = proteinKcal + ' ккал';
+        fatKcalDisplay.textContent = fatKcal + ' ккал';
+        carbsKcalDisplay.textContent = carbsKcal + ' ккал';
+    }
+
+    // 4. Функция для кнопок + и -
+    function changeWeight(delta) {
+        var val = parseInt(weightInput.value);
+        if (isNaN(val)) val = 72;
+        val = val + delta;
+        if (val < 40) val = 40;
+        if (val > 200) val = 200;
+        weightInput.value = val;
+        calculate(); // Сразу пересчитываем
+    }
+
+    // 5. Назначаем обработчики (через addEventListener — надёжнее)
+    minusBtn.addEventListener('click', function() { changeWeight(-1); });
+    plusBtn.addEventListener('click', function() { changeWeight(1); });
+    calcBtn.addEventListener('click', calculate);
+
+    // 6. Дополнительно: если пользователь ввёл число и нажал Enter
+    weightInput.addEventListener('change', calculate);
+
+    // 7. Запускаем расчёт при загрузке страницы (чтобы сразу показать результат)
+    calculate();
+
+    console.log('Калькулятор загружен и работает!');
+</script>
+</body>
+</html>
